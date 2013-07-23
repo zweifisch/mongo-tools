@@ -26,10 +26,17 @@ class MongoTask:
 
 class Profile(MongoTask):
 
-	def run(self, db, time, duration):
+	def start(self, db, time, duration):
 		self.db(db).command({'profile': 1, 'slowms': time})
-		sleep(duration)
+		if duration:
+			sleep(duration)
+			self.stop(db)
+			self.report(db)
+
+	def stop(self, db):
 		self.db(db).command({'profile': 0})
+
+	def report(self, db):
 		for row in self.client[db]['system.profile'].find():
 			print(row)
 
@@ -85,7 +92,9 @@ def profile():
 	"""mongo-profile
 
 Usage:
-  mongo-profile <db> <filter> [<duration> --port <port> --host <host>]
+  mongo-profile start <db> <filter> [<duration> --port <port> --host <host>]
+  mongo-profile stop <db> [--port <port> --host <host>]
+  mongo-profile report <db> [--port <port> --host <host>]
 
 Options:
   -h --help            Show this screen.
@@ -94,7 +103,12 @@ Options:
 """
 	args = docopt(profile.__doc__)
 	task = Profile(args['--host'], int(args['--port']))
-	task.run(args['<db>'], int(args['<filter>']), int(args['<duration>']) if args['<duration>'] else 0)
+	if (args['start']):
+		task.start(args['<db>'], int(args['<filter>']), int(args['<duration>']) if args['<duration>'] else 0)
+	elif (args['stop']):
+		task.stop(args['<db>'])
+	elif (args['report']):
+		task.report(args['<db>'])
 
 
 def info():
