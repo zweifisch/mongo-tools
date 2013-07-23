@@ -17,7 +17,7 @@ mongo-info dbs
 example output
 
 ```
-db
+db_name
                   ns         storageSize                size      totalIndexSize               count
                links              13.4 M              10.0 M             503.0 K               8.9 k
       system.indexes               1.3 M             504.0                 0.0                 5.0  
@@ -42,9 +42,9 @@ mongo-info connections
 example output:
 
 ```
-			  ip          counts
-	 127.0.0.1              41
-		0.0.0.0               2
+           ip          counts
+    127.0.0.1              41
+      0.0.0.0               2
 ```
 
 more options see `mongo-info -h`
@@ -54,7 +54,7 @@ more options see `mongo-info -h`
 profile for 60 seconds, log queries that takes longer than 100 ms
 
 ```sh
-mongo-profile start collection 100 60
+mongo-profile start db_name 100 60
 ```
 
 more options see `mongo-profile -h`
