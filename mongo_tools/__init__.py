@@ -1,9 +1,24 @@
 from pymongo import MongoClient
+import pymongo
 from docopt import docopt
 from collections import Counter
 from operator import itemgetter
 from time import sleep
+import datetime
+import json
 
+
+class JSONEncoder(json.JSONEncoder):
+	def default(self, o):
+		if isinstance(o, pymongo.son_manipulator.ObjectId):
+			return str(o)
+		elif isinstance(o, datetime.datetime):
+			return str(0)
+		return json.JSONEncoder.default(self, o)
+
+
+def json_encode(obj, **kargs):
+	return JSONEncoder(**kargs).encode(obj)
 
 def print_tabular(head, rows, row_format=None, cell_width=20):
 	if row_format is None:
@@ -31,14 +46,16 @@ class Profile(MongoTask):
 		if duration:
 			sleep(duration)
 			self.stop(db)
-			self.report(db)
+			self.report(db, duration)
 
 	def stop(self, db):
 		self.db(db).command({'profile': 0})
 
-	def report(self, db):
-		for row in self.client[db]['system.profile'].find():
-			print(row)
+	def report(self, db, seconds):
+		time = datetime.datetime.utcnow() - datetime.timedelta(seconds=seconds)
+		for row in self.client[db]['system.profile'].find({'ts':{'$gt':time}}).sort('millis', -1):
+			row['ts'] = str(row['ts'])
+			print(json_encode(row, indent=3))
 
 
 class Info(MongoTask):
@@ -94,7 +111,7 @@ def profile():
 Usage:
   mongo-profile start <db> <filter> [<duration> --port <port> --host <host>]
   mongo-profile stop <db> [--port <port> --host <host>]
-  mongo-profile report <db> [--port <port> --host <host>]
+  mongo-profile report <db> <duration> [--port <port> --host <host>]
 
 Options:
   -h --help            Show this screen.
@@ -108,7 +125,7 @@ Options:
 	elif (args['stop']):
 		task.stop(args['<db>'])
 	elif (args['report']):
-		task.report(args['<db>'])
+		task.report(args['<db>'], int(args['<duration>']))
 
 
 def info():

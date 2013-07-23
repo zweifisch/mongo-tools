@@ -23,8 +23,10 @@ more options see `mongo-info -h`
 
 ### mongo-profile
 
-profile for 60 seconds, log queries that takes longer than 10 ms
+profile for 60 seconds, log queries that takes longer than 100 ms
 
 ```sh
-mongo-profile 60 100
+mongo-profile start collection 100 60
 ```
+
+more options see `mongo-profile -h`
