@@ -58,3 +58,23 @@ mongo-profile start db_name 100 60
 ```
 
 more options see `mongo-profile -h`
+
+### mongo-files
+
+find file by `\_id`
+
+```sh
+mongo-files dbname find 106e001a79074b8c2e706466
+```
+
+list 10 largest files
+
+```sh
+mongo-files dbname largest 10
+```
+
+count files
+
+```sh
+mongo-files dbname count
+```
